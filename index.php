@@ -60,7 +60,7 @@
         if ($result->num_rows > 0) {
             while($row = $result->fetch_assoc()) {
                 ?>
-                <div class="col-md-4">
+                <div class="col-md-4 fade-in">
                     <div class="card h-100">
                         <img src="<?php echo $row['image'] ? $row['image'] : 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&auto=format&fit=crop&q=60'; ?>" class="card-img-top" alt="Blog Image" style="height: 200px; object-fit: cover;">
                         <div class="card-body p-4">
