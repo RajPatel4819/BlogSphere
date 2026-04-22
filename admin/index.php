@@ -20,6 +20,7 @@ include '../includes/header.php';
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link active" href="index.php">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="categories.php">Categories</a></li>
                 <li class="nav-item"><a class="nav-link" href="../index.php">Go to Website</a></li>
             </ul>
             <div class="navbar-nav">
