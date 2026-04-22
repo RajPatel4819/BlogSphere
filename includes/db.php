@@ -1,7 +1,7 @@
 <?php
 $host = 'localhost';
 $user = 'root';
-$pass = '';
+$pass = 'r6323@xyz#';
 $dbname = 'blog_sphere_db';
 
 $conn = new mysqli($host, $user, $pass, $dbname);
