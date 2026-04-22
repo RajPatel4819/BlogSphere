@@ -9,11 +9,21 @@
                 <li class="nav-item">
                     <a class="nav-link" href="index.php">Home</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Categories</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        Categories
+                    </a>
+                    <ul class="dropdown-menu">
+                        <?php
+                        $cats = $conn->query("SELECT * FROM categories");
+                        while($c = $cats->fetch_assoc()) {
+                            echo "<li><a class='dropdown-item' href='index.php?category={$c['id']}'>{$c['name']}</a></li>";
+                        }
+                        ?>
+                    </ul>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">About</a>
+                    <a class="nav-link" href="about.php">About</a>
                 </li>
             </ul>
             <div class="d-flex align-items-center">
