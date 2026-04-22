@@ -25,14 +25,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_post'])) {
     $status = $_POST['status'];
     $image_url = $conn->real_escape_string($_POST['image_url']);
 
-    $sql = "UPDATE posts SET title='$title', category_id='$category_id', content='$content', image='$image_url', status='$status' 
-            WHERE id=$post_id";
-    
-    if ($conn->query($sql)) {
-        header("Location: view_posts.php?msg=Post updated successfully");
-        exit();
-    } else {
-        $error = "Error updating post: " . $conn->error;
+    // Handle File Upload
+    if(!empty($_FILES['image_file']['name'])) {
+        $target_dir = "uploads/";
+        $filename = time() . "_" . basename($_FILES["image_file"]["name"]);
+        $target_file = $target_dir . $filename;
+        
+        $check = getimagesize($_FILES["image_file"]["tmp_name"]);
+        if($check !== false) {
+            if (move_uploaded_file($_FILES["image_file"]["tmp_name"], $target_file)) {
+                $image_url = $target_file; 
+            } else {
+                $error = "Error uploading file.";
+            }
+        } else {
+            $error = "File is not an image.";
+        }
+    }
+
+    if(empty($error)) {
+        $sql = "UPDATE posts SET title='$title', category_id='$category_id', content='$content', image='$image_url', status='$status' 
+                WHERE id=$post_id";
+        
+        if ($conn->query($sql)) {
+            header("Location: view_posts.php?msg=Post updated successfully");
+            exit();
+        } else {
+            $error = "Error updating post: " . $conn->error;
+        }
     }
 }
 
@@ -53,7 +73,7 @@ include 'includes/navbar.php';
                     <div class="alert alert-danger"><?php echo $error; ?></div>
                 <?php endif; ?>
 
-                <form method="POST" action="edit_post.php?id=<?php echo $post_id; ?>">
+                <form method="POST" action="edit_post.php?id=<?php echo $post_id; ?>" enctype="multipart/form-data">
                     <div class="row mb-4">
                         <div class="col-md-8">
                             <label class="form-label fw-semibold">Post Title</label>
@@ -73,9 +93,15 @@ include 'includes/navbar.php';
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Featured Image URL</label>
-                        <input type="url" name="image_url" class="form-control" value="<?php echo htmlspecialchars($post['image']); ?>">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Featured Image URL</label>
+                            <input type="url" name="image_url" class="form-control px-3" value="<?php echo htmlspecialchars($post['image']); ?>">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Or Update Image (from PC)</label>
+                            <input type="file" name="image_file" class="form-control px-3" accept="image/*">
+                        </div>
                     </div>
 
                     <div class="mb-4">

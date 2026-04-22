@@ -17,14 +17,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['create_post'])) {
     $user_id = $_SESSION['user_id'];
     $image_url = $conn->real_escape_string($_POST['image_url']);
 
-    $sql = "INSERT INTO posts (user_id, category_id, title, content, image, status) 
-            VALUES ('$user_id', '$category_id', '$title', '$content', '$image_url', '$status')";
-    
-    if ($conn->query($sql)) {
-        header("Location: dashboard.php?msg=Post created successfully");
-        exit();
-    } else {
-        $error = "Error adding post: " . $conn->error;
+    // Handle File Upload
+    if(!empty($_FILES['image_file']['name'])) {
+        $target_dir = "uploads/";
+        $filename = time() . "_" . basename($_FILES["image_file"]["name"]);
+        $target_file = $target_dir . $filename;
+        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+        
+        // Check if image file is a actual image
+        $check = getimagesize($_FILES["image_file"]["tmp_name"]);
+        if($check !== false) {
+            if (move_uploaded_file($_FILES["image_file"]["tmp_name"], $target_file)) {
+                $image_url = $target_file; // Use the uploaded file path
+            } else {
+                $error = "Sorry, there was an error uploading your file.";
+            }
+        } else {
+            $error = "File is not an image.";
+        }
+    }
+
+    if(empty($error)) {
+        $sql = "INSERT INTO posts (user_id, category_id, title, content, image, status) 
+                VALUES ('$user_id', '$category_id', '$title', '$content', '$image_url', '$status')";
+        
+        if ($conn->query($sql)) {
+            header("Location: dashboard.php?msg=Post created successfully");
+            exit();
+        } else {
+            $error = "Error adding post: " . $conn->error;
+        }
     }
 }
 
@@ -45,7 +67,7 @@ include 'includes/navbar.php';
                     <div class="alert alert-danger"><?php echo $error; ?></div>
                 <?php endif; ?>
 
-                <form method="POST" action="create_post.php">
+                <form method="POST" action="create_post.php" enctype="multipart/form-data">
                     <div class="row mb-4">
                         <div class="col-md-8">
                             <label class="form-label fw-semibold">Post Title</label>
@@ -63,9 +85,15 @@ include 'includes/navbar.php';
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Featured Image URL</label>
-                        <input type="url" name="image_url" class="form-control" placeholder="https://example.com/image.jpg (Optional)">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Featured Image URL</label>
+                            <input type="url" name="image_url" class="form-control px-3" placeholder="https://example.com/image.jpg">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Or Upload from PC</label>
+                            <input type="file" name="image_file" class="form-control px-3" accept="image/*">
+                        </div>
                     </div>
 
                     <div class="mb-4">
